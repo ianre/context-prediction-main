@@ -2,6 +2,10 @@ deeplab_nokin_context2.py
 __pycache__
 */deeplab_labeled_images/
 */deeplab_labeled_images_test/
+*/2023_thread_masks/
+*/2023_grasper_R_masks/
+*/2023_grasper_L_masks/
+*/2023_contour_images/
 win-env/
 *.zip
 *.avi

@@ -25,13 +25,13 @@ def main():
     except:
         print("Error: no task provided","Usage: python deeplab_nokin_context_v3.py <task>","Default Task"+task)
 
-    I = Iterator(task)
+    I = Context_Iterator(task)
     #I.CheckDataIntegrity()
     I.GenerateContext(SAVE=False)
     
     quit();
 
-class Iterator:
+class Context_Iterator:
 
     def __init__(self, task):
         self.CWD = os.path.dirname(os.path.realpath(__file__))        
@@ -265,8 +265,6 @@ class Iterator:
                     path.mkdir(parents=True, exist_ok=True)     
                 utils.save(ctxPredFName,contextLines)
         print(count,"images processed!")
-
-
         
     def getThreadContours(self,threadMaskImage):
         im = cv.imread(threadMaskImage)
@@ -438,7 +436,6 @@ class Iterator:
         else:
             R_Gripping = False
         return L_Gripping, R_Gripping, L_Dist,R_Dist, Grasper_DistX
-
 
     def GetTissueDist(self,TissuePoints,needleShape, needleShape_gt):
         gt_bisector, gt_tissue, pred_bisector, pred_tissue = 1000,1000,1000,1000
@@ -1198,7 +1195,6 @@ class Iterator:
         plt.show()
         '''
  
-
     # All of the methods below return arrays of objects of type geo.Polygon
     # This speeds up computation later
     def GetKTShapes(self,gtPolygons,gtKeypoints,SingleThreadPoints,ThreadContours,LgrasperPoints,RgrasperPoints):
