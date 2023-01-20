@@ -57,11 +57,11 @@ def main():
     '''
 class Contour_Iterator:
 
-    def __init__(self, task):
-        self.CWD = os.path.dirname(os.path.realpath(__file__))        
+    def __init__(self, task, CDW):
+        self.CWD = CDW
         self.task = task
         self.imagesDir = os.path.join(self.CWD, task,"images")    
-        self.deeplabOutputDir= os.path.join(self.CWD,task,"deeplab_labeled_images")
+        self.deeplabOutputDir= os.path.join(self.CWD,task,"2023_labeled_images")
         self.tissueDir =  os.path.join(self.CWD,task,"tissue_keypoints")
         self.grasperJawDir = os.path.join(self.CWD,task,"grasper_jaw_keypoints")
         self.OS = "windows" 
@@ -342,7 +342,7 @@ class Contour_Iterator:
                         path = pathlib.Path(PointsRoot)
                         path.mkdir(parents=True, exist_ok=True)
                     
-                    img_3 = np.zeros([1512,1512,3],dtype=np.uint8)
+                    img_3 = np.zeros([500,700,3],dtype=np.uint8)
                     img_3.fill(255)
 
                     #outFname =  os.path.join(OutRoot,file.replace(".png",".npy"))
@@ -362,6 +362,7 @@ class Contour_Iterator:
                     largestIndex = -1
                     largestArea = 0
                     
+                    
                     for k in range(len(contours)):                    
                         cnt = contours[k]
                         area = cv.contourArea(cnt)
@@ -369,6 +370,7 @@ class Contour_Iterator:
                         if area>largestArea:
                             largestIndex=k
                             largestArea=area
+
                     Regions = []
                     RegionAttributes = []
                     areasInOrderSaved = []
@@ -376,36 +378,37 @@ class Contour_Iterator:
                     rbg = tuple(int(colors[0].lstrip("#")[j:j+2], 16) for j in (0, 2, 4))
                     for area in sorted(areas,reverse=True):
                         origIndex = areas.index(area)
-                        if len(Regions) <= 2:
-                            if area > 15 or len(Regions) == 0:
-                                areasInOrderSaved.append(area)
-                                cnt = contours[origIndex]                        
-                                X = []
-                                Y = []
-                                epsilon = 0.01*cv.arcLength(cnt,True)
-                                approx = cv.approxPolyDP(cnt,epsilon,True)
-                                scalar = 10
-                                pts = []
-                                for points in approx:
-                                    x =int(points[0][0])
-                                    y = int(points[0][1])
-                                    X.append(x)
-                                    Y.append(y)
-                                    pts.append([x,y])
-                                newShape = np.array([pts], np.int32)
+                        # smoothing and drop out turned off
+                        #if len(Regions) <= 2:
+                        #    if area > 15 or len(Regions) == 0:
+                        areasInOrderSaved.append(area)
+                        cnt = contours[origIndex]                        
+                        X = []
+                        Y = []
+                        epsilon = 0.001*cv.arcLength(cnt,True) #0.01 smaller number for less smoothing
+                        approx = cv.approxPolyDP(cnt,epsilon,True)
+                        pts = []
+                        for points in approx:
+                            x =int(points[0][0])
+                            y = int(points[0][1])
+                            X.append(x)
+                            Y.append(y)
+                            pts.append([x,y])
+                        newShape = np.array([pts], np.int32)
 
-                                #cv.drawContours(im,[approx],0,rbg,1)
-                                cv.polylines(img_3, [newShape], True, (0,0,255), thickness=8)
-                                #cv.putText(im,LabelClassName,(cnt[0][0][0],cnt[0][0][1]), cv.FONT_HERSHEY_SIMPLEX,0.5,rbg)
-                                RegionAttributes.append(LabelClassName)
-                                Regions.append([X,Y])
-                        else: 
-                            break
+                        #cv.drawContours(im,[approx],0,rbg,1)
+                        cv.polylines(img_3, [newShape], True, (0,0,255), thickness=1)
+                        #cv.putText(im,LabelClassName,(cnt[0][0][0],cnt[0][0][1]), cv.FONT_HERSHEY_SIMPLEX,0.5,rbg)
+                        RegionAttributes.append(LabelClassName)
+                        Regions.append([X,Y])
+                        #else: 
+                        #    break
                     if DEBUG:
                         print(areasInOrderSaved,"------------",areas, end=" ")
                     print(areasInOrderSaved,end=" ")
                             
                     VIA.addFrameMultiRegion(non_pred_name, fileSizeInBytes, Regions, RegionAttributes)
+                    
                     if SAVE_TEST_IMAGE:
                         cv.imwrite(testFname,img_3)
                     if DEBUG:
@@ -518,4 +521,4 @@ class Contour_Iterator:
 
 ''
 
-main();
+#main();

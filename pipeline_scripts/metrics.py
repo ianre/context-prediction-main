@@ -91,13 +91,13 @@ def main():
     quit(); 
 
 class Metrics_Iterator:
-    def __init__(self, task):
-        self.CWD = os.path.dirname(os.path.realpath(__file__))        
+    def __init__(self, task,CWD):
+        self.CWD = CWD        
         self.task = task
         self.outputDir = os.path.join(self.CWD, self.task,"ctx_output")
         self.ian = os.path.join(self.CWD,self.task, "ctx_ian")
         self.kay = os.path.join(self.CWD,self.task, "ctx_kay")
-        self.pred = os.path.join(self.CWD, self.task,"vis_context_labels_v5_gt") # vis_context_labels_v4,context_proc
+        self.pred = os.path.join(self.CWD, self.task,"2023_vis_context_labels_v1") # vis_context_labels_v4,context_proc, vis_context_labels_v5_gt 
         self.context_proc = os.path.join(self.CWD,self.task,"context_proc_30fps_gt")
         self.consensus = os.path.join(self.CWD, self.task,"ctx_consensus")    
         self.surgeon =      os.path.join(self.CWD, self.task,"ctx_surgeon")    
@@ -164,10 +164,7 @@ class Metrics_Iterator:
                 consensus_lines_unrolled = self.unrollContext(consensus_lines)
                 consensus_lines_10 = self.resampleContext(consensus_lines_unrolled, 10)
                 consensus_lines_15 = self.resampleContext(consensus_lines_unrolled, 15)
-
-
                 return
-
 
     def unrollContext(self, lines):
         n_lines = []
@@ -337,28 +334,18 @@ class Metrics_Iterator:
         c3 = []
         c4 = []
         c5 = []
-
         for root, dirs, files in os.walk(self.consensus): # self.consensus
             for file in files:
-                if("99" in file):
-                    continue
-                #print(file)
-                count=count+1
-                out_file = os.path.join(self.outputDir, file)
-
-                #! IOU Consensus vs Surgeon
+                count=count+1                
                 '''
                 pred_file = os.path.join(self.consensus, file)
                 consensus_file = os.path.join(self.surgeon, file)
-                '''
-                
+                '''                
                 #! IOU Automated vs Consensus
                 pred_file = os.path.join(self.pred, file)
                 consensus_file = os.path.join(self.consensus, file)
-
-
-                
                 pred_lines = []
+
                 try:
                     with open(pred_file) as pred_data:
                         for line in pred_data:
@@ -396,11 +383,9 @@ class Metrics_Iterator:
                 state4gt = []
                 state5gt = []
                 for line in pred_lines_u:
-
                     if i >= len(pred_lines_u) or i >= len(consensus_lines_u):
                         continue
-                    #! boolean array for distance
-                    
+                    #! boolean array for distance                    
                     pred = line.replace("\n","")
                     consensus_line = consensus_lines_u[i].replace("\n","")
 
@@ -440,9 +425,6 @@ class Metrics_Iterator:
                     #out_lines.append(outPollRow)
                     #alpha_lines.append(kappaPollRow)
                     i=i+1
-                    
-                
-
                 s1 = metrics.jaccard_score(state1gt, state1p, labels=None, pos_label=1, average='micro', sample_weight=None, zero_division='warn')                
                 s2 = metrics.jaccard_score(state2gt, state2p, labels=None, pos_label=1, average='micro', sample_weight=None, zero_division='warn') 
                 s3 = metrics.jaccard_score(state3gt, state3p, labels=None, pos_label=1, average='micro', sample_weight=None, zero_division='warn') 
@@ -555,8 +537,6 @@ class Metrics_Iterator:
             return np.mean([overlap_(P[i],Y[i], n_classes, bg_class, overlap) for i in range(len(P))])
         else:
             return overlap_(P, Y, n_classes, bg_class, overlap)
-
-
 
     def showAllPlots(self):
         plots = []
@@ -914,5 +894,5 @@ class Metrics_Iterator:
                 f.write("%s\n" % item)      
 
 
-main();
+#main();
 
