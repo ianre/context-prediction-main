@@ -21,7 +21,7 @@ def getTrialFrames(cwd,task,trial):
 
 def main():
     CWD=os.getcwd()
-    TASK = "Knot_Tying" #DEFAULT 
+    TASK = "Needle_Passing" #DEFAULT 
     try:
         TASK=sys.argv[1]
     except:
@@ -33,10 +33,12 @@ def main():
         break
         
     
-    BATCH_SIZE = 10
+    BATCH_SIZE = 25
     EPOCH = 0
     TRIAL = trials[0]
     TRIAL_FRAMES = getTrialFrames(CWD,TASK,TRIAL) # formatted as the XXXX in 'frame_XXXX.png'
+    TOTAL_TIME = 0
+    TOTAL_EPOCH = 0
     
 
     print("Pipeline Running for task ",TASK,"trial",TRIAL)
@@ -44,44 +46,25 @@ def main():
         print("EPOCH ", EPOCH, ":", TRIAL_FRAMES[BATCH_SIZE*EPOCH:BATCH_SIZE*EPOCH+BATCH_SIZE])
         start_time = time.time()
         I = Contour_Iterator(TASK,CWD)
-        label_classes, label_classNames, ContourFiles = I.ExtractContours(BATCH_SIZE,EPOCH,TRIAL,TRIAL_FRAMES[BATCH_SIZE*EPOCH:BATCH_SIZE*EPOCH+BATCH_SIZE])
+        # Format: ["2023_grasper_L_masks","other folders"], ["2023_grasper_L", "label names"], ["C://...//2023_grasper_L_masks/Knot_Tying_S03_T02_0.json", "other filenames"] 
+        label_classes, label_classNames, ContourFiles, RingFile = I.ExtractContours(BATCH_SIZE,EPOCH,TRIAL,TRIAL_FRAMES[BATCH_SIZE*EPOCH:BATCH_SIZE*EPOCH+BATCH_SIZE])
         I = Context_Iterator(TASK,CWD)
-        #I.GenerateContext(BATCH_SIZE,EPOCH,TRIAL,TRIAL_FRAMES[BATCH_SIZE*EPOCH:BATCH_SIZE*EPOCH+BATCH_SIZE],SAVE=True)
+        I.GenerateContext(BATCH_SIZE,EPOCH,TRIAL,TRIAL_FRAMES[BATCH_SIZE*EPOCH:BATCH_SIZE*EPOCH+BATCH_SIZE],label_classes, label_classNames,ContourFiles,RingFile,SAVE=True)
         end_time = time.time()
-        print(" %s s \n" % round((end_time - start_time),3), end="")
+        epoch_time = end_time - start_time
+        if((EPOCH+1) * BATCH_SIZE < len(TRIAL_FRAMES)):
+            TOTAL_TIME += epoch_time
+            TOTAL_EPOCH +=1
+        print("   %s s \n" % round(epoch_time,3), end="")
         EPOCH +=1
 
+    print("\n---------------------- Time Analysis --------------------")
+    print("Average runtime for batch size=",BATCH_SIZE," is ", round(TOTAL_TIME/TOTAL_EPOCH,4),"seconds")
+    print("                                        ", round(TOTAL_TIME/TOTAL_EPOCH,6)*1000,"ms")
+    print("Total Execution time",round(TOTAL_TIME,5),"seconds")
+    print("\n---------------------- Metrics --------------------")
     I = Metrics_Iterator(TASK,CWD)
     I.IOU()
-    return
-
-    #start
-    start_time = time.time()
-    print("Pipeline Running for task ",TASK)
-    print("Contour Extraction")
-    I = Contour_Iterator(TASK,CWD)
-    I.ExtractContours(BATCH_SIZE,EPOCH,TRIAL_FRAMES[BATCH_SIZE*EPOCH:BATCH_SIZE*EPOCH+BATCH_SIZE])
-    #label_classes, label_classNames = getLabelClassnames(task)
-    #classNameIndex=0
-
-    '''
-    creates a folder for contour images and contour points. Contour images are used for sanity check, and contour points are passed to context generation
-    '''
-    #for label_class in label_classes:
-        #I.findAllContours(label_class,label_classNames[classNameIndex],SAVE_TEST_IMAGE=True,SAVE_DATA=True)
-        #I.findAllContoursTimed(label_class,label_classNames[classNameIndex],SAVE_TEST_IMAGE=True,SAVE_DATA=True)
-        #classNameIndex+=1
-
-    I = Context_Iterator(TASK,CWD)
-    #I.CheckDataIntegrity()
-    I.GenerateContext(SAVE=True)
-    end_time = time.time()
-
-    I = Metrics_Iterator(TASK,CWD)
-    I.IOU()
-
-    print("--- %s seconds ---" % (end_time - start_time))
-    
     quit();
 
 '''

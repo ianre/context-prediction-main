@@ -5,6 +5,8 @@ __pycache__
 */2023_thread_masks/
 */2023_grasper_R_masks/
 */2023_grasper_L_masks/
+*/2023_needle_masks/
+*/2023_ring_masks/
 */2023_contour_images/
 win-env/
 *.zip

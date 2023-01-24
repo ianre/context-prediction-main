@@ -334,7 +334,7 @@ class Metrics_Iterator:
         c3 = []
         c4 = []
         c5 = []
-        for root, dirs, files in os.walk(self.consensus): # self.consensus
+        for root, dirs, files in os.walk(self.pred): # self.consensus will have too many files
             for file in files:
                 count=count+1                
                 '''

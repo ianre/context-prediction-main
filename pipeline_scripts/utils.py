@@ -124,6 +124,11 @@ def save(file, lines):
         for item in lines:
             f.write("%s\n" % item)
 
+def saveAppend(file, lines):
+    with open(file,  "a") as f:
+        for item in lines:
+            f.write("%s\n" % item)
+
 
 """
 JSONInterface deals with the particular JSON format of the annotations
