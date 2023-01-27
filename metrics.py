@@ -53,7 +53,7 @@ class_num = 0
 def main(): 
     
     dir=os.getcwd()
-    task = "Needle_Passing"
+    task = "Suturing"
 
     try:
         task=sys.argv[1]
@@ -76,8 +76,8 @@ def main():
 
     I = MetricsIterator(task)
     #I.generate30fps()
-    #I.IOU()
-    I.resampleTest()
+    I.IOU()
+    #I.resampleTest()
 
     #I.fixStates()
     #I.poll()
@@ -97,7 +97,7 @@ class MetricsIterator:
         self.outputDir = os.path.join(self.CWD, self.task,"ctx_output")
         self.ian = os.path.join(self.CWD,self.task, "ctx_ian")
         self.kay = os.path.join(self.CWD,self.task, "ctx_kay")
-        self.pred = os.path.join(self.CWD, self.task,"vis_context_labels_v5_gt") # vis_context_labels_v4,context_proc
+        self.pred = os.path.join(self.CWD, self.task,"2023_DL_vis_context_labels_v1") # vis_context_labels_v4,context_proc, vis_context_labels_v5_gt
         self.context_proc = os.path.join(self.CWD,self.task,"context_proc_30fps_gt")
         self.consensus = os.path.join(self.CWD, self.task,"ctx_consensus")    
         self.surgeon =      os.path.join(self.CWD, self.task,"ctx_surgeon")    

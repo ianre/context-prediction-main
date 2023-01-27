@@ -269,6 +269,18 @@ class VIAPolyJSON:
 
     def getClassKey(self, label_class):
         label_classes = [
+            "2023_PRES_grasper_L_masks",
+            "2023_PRES_grasper_R_masks",
+            "2023_PRES_needle_masks",
+            "2023_PRES_thread_masks",
+        ]
+        label_classNames = ["2023_grasper_L", "2023_grasper_R", "2023_needle", "2023_thread"]
+        for i in range(len(label_class)):
+            if label_classes[i] in label_class:
+                return label_classNames[i]
+
+    def getClassKeyDL(self, label_class):
+        label_classes = [
             "deeplab_grasper_L",
             "deeplab_grasper_R",
             "deeplab_needle",
